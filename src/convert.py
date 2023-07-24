@@ -5,8 +5,9 @@ import src.settings as s
 from urllib.parse import unquote, urlparse
 from supervisely.io.fs import get_file_name, get_file_size
 import shutil
-
+import cv2
 from tqdm import tqdm
+
 
 def download_dataset(teamfiles_dir: str) -> str:
     """Use it for large datasets to convert them on the instance"""
@@ -53,20 +54,108 @@ def download_dataset(teamfiles_dir: str) -> str:
         dataset_path = storage_dir
     return dataset_path
 
+
 def convert_and_upload_supervisely_project(
     api: sly.Api, workspace_id: int, project_name: str
 ) -> sly.ProjectInfo:
-    ### Function should read local dataset and upload it to Supervisely project, then return project info.###
-    raise NotImplementedError("The converter should be implemented manually.")
+    datasets = [
+        "/mnt/c/users/german/documents/CosegPP/Buckwheat-C-1",
+        "/mnt/c/Users/German/Documents/CosegPP/Buckwheat-D-1",
+        "/mnt/c/Users/German/Documents/CosegPP/Sunflower-C-1",
+        "/mnt/c/Users/German/Documents/CosegPP/Sunflower-D-1",
+    ]
 
-    # dataset_path = "/local/path/to/your/dataset" # general way
-    # dataset_path = download_dataset(teamfiles_dir) # for large datasets stored on instance
+    def load_image_labels(image_path, labels_path):
+        image_info = api.image.upload_path(
+            dataset.id,
+            (
+                os.path.basename(image_path)
+                + "_"
+                + os.path.basename(sub_dataset)
+                + "_"
+                + os.path.basename(dataset_path)
+            ),
+            image_path,
+        )
+        mask = cv2.imread(labels_path, cv2.IMREAD_GRAYSCALE)
+        thresh = 127
+        labels = []
+        mask_height, mask_width = mask.shape
+        height = image_info.height
+        width = image_info.width
+        if [mask_height, mask_width] != [height, width]:
+            mask = cv2.resize(mask, (width, height))
+            # cv2.imwrite("maska_test.jpg", mask)
+        im_bw = cv2.threshold(mask, thresh, 255, cv2.THRESH_BINARY)[1]
 
-    # ... some code here ...
+        bitmap_annotation = sly.Bitmap(
+            im_bw,
+        )
+        obj_class = meta.get_obj_class(os.path.basename(dataset_path))
+        label = sly.Label(bitmap_annotation, obj_class)
+        labels.append(label)
 
-    # sly.logger.info('Deleting temporary app storage files...')
-    # shutil.rmtree(storage_dir)
+        img_tag = sly.Tag(meta=img_tag_meta, value=os.path.basename(sub_dataset))
 
-    # return project
+        ann = sly.Annotation(img_size=[height, width], labels=labels, img_tags=[img_tag])
+        api.annotation.upload_ann(image_info.id, ann)
 
+    # create project and initialize meta
+    project = api.project.create(workspace_id, project_name)
+    meta = sly.ProjectMeta()
 
+    oneof_values = [
+        "Fluo_SV_0",
+        "Fluo_SV_72",
+        "Fluo_SV_144",
+        "Fluo_SV_216",
+        "IR_SV_0",
+        "IR_SV_72",
+        "IR_SV_144",
+        "IR_SV_216",
+        "Vis_SV_0",
+        "Vis_SV_72",
+        "Vis_SV_144",
+        "Vis_SV_216",
+    ]
+    img_tag_meta = sly.TagMeta(
+        name="modality and resolution",
+        value_type=sly.TagValueType.ONEOF_STRING,
+        possible_values=oneof_values,
+    )
+    meta = sly.ProjectMeta.add_tag_meta(meta, img_tag_meta)
+    api.project.update_meta(project.id, meta)
+
+    for dataset_path in datasets:
+        dataset = api.dataset.create(project.id, os.path.basename(dataset_path))
+        # create object class
+        cl = sly.ObjClass(os.path.basename(dataset_path), sly.Bitmap, color=[0, 255, 0])
+        meta = meta.add_obj_class(cl)
+        api.project.update_meta(project.id, meta)
+
+        # iterate throught subdatasets
+        datasets_subdir = [f.path for f in os.scandir(dataset_path) if f.is_dir()]
+        for sub_dataset in datasets_subdir:
+            mask_folder_path = os.path.join(
+                os.path.dirname(dataset_path) + "_groundtruth",
+                os.path.basename(dataset_path),
+                os.path.basename(sub_dataset),
+            )
+            mask_path = sly.fs.list_files(mask_folder_path)
+            # upload masks to images
+            pbar = tqdm(desc=os.path.basename(sub_dataset), total=len(mask_path))
+            for path in mask_path:
+                if os.path.basename(path) == ".DS_Store":
+                    pbar.update(1)
+                    continue
+                img_path = os.path.join(sub_dataset, os.path.basename(path))
+                try:
+                    load_image_labels(img_path, path)
+                    pbar.update(1)
+                except Exception as e:
+                    print(e)
+                    pbar.update(1)
+                    continue
+            pbar.close()
+        print(f"Dataset '{dataset.name}' has been successfully created.")
+    return project
