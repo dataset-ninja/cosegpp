@@ -78,7 +78,9 @@ ORGANIZATION_NAME: Optional[Union[str, List[str]]] = "University of Nebraska-Lin
 ORGANIZATION_URL: Optional[Union[str, List[str]]] = "https://www.unl.edu/"
 
 # Set '__PRETEXT__' or '__POSTTEXT__' as a key with string value to add custom text. e.g. SLYTAGSPLIT = {'__POSTTEXT__':'some text}
-SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = None
+SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = {
+    "__POSTTEXT__": "For the sake of improving the experience when working with this dataset, we have decided to group the images by date. This way, you can work simultaneously with every image of a plant in every modality and angle. This grouping is only visible in advanced labeling toolbox."
+}
 TAGS: Optional[List[str]] = None
 
 
