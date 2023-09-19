@@ -95,36 +95,38 @@ def convert_and_upload_supervisely_project(
         label = sly.Label(bitmap_annotation, obj_class)
         labels.append(label)
 
-        img_tag = sly.Tag(meta=img_tag_meta, value=os.path.basename(sub_dataset))
+        bn_split = os.path.basename(os.path.dirname(path)).split("_")
+        mod_tag_value = d_val.get(bn_split[0])
 
-        ann = sly.Annotation(img_size=[height, width], labels=labels, img_tags=[img_tag])
+        d_split = os.path.basename(path).split("_")
+
+        mod_tag = sly.Tag(meta=mod_tag_meta, value=mod_tag_value)
+        angle_tag = sly.Tag(meta=angle_tag_meta, value=int(bn_split[2]))
+        date_tag = sly.Tag(meta=date_tag_meta, value=d_split[0])
+
+        ann = sly.Annotation(
+            img_size=[height, width], labels=labels, img_tags=[mod_tag, angle_tag, date_tag]
+        )
         api.annotation.upload_ann(image_info.id, ann)
 
     # create project and initialize meta
     project = api.project.create(workspace_id, project_name)
     meta = sly.ProjectMeta()
 
-    oneof_values = [
-        "Fluo_SV_0",
-        "Fluo_SV_72",
-        "Fluo_SV_144",
-        "Fluo_SV_216",
-        "IR_SV_0",
-        "IR_SV_72",
-        "IR_SV_144",
-        "IR_SV_216",
-        "Vis_SV_0",
-        "Vis_SV_72",
-        "Vis_SV_144",
-        "Vis_SV_216",
-    ]
-    img_tag_meta = sly.TagMeta(
-        name="modality and resolution",
+    d_val = {"Fluo": "Fluorescent", "IR": "Infrared", "Vis": "Visible Light"}
+
+    mod_tag_meta = sly.TagMeta(
+        name="modality",
         value_type=sly.TagValueType.ONEOF_STRING,
-        possible_values=oneof_values,
+        possible_values=list(d_val.values()),
     )
-    meta = sly.ProjectMeta.add_tag_meta(meta, img_tag_meta)
+    meta = sly.ProjectMeta.add_tag_meta(meta, mod_tag_meta)
+    angle_tag_meta = sly.TagMeta(name="angle", value_type=sly.TagValueType.ANY_NUMBER)
+    meta = sly.ProjectMeta.add_tag_meta(meta, angle_tag_meta)
+    date_tag_meta = sly.TagMeta(name="date", value_type=sly.TagValueType.ANY_STRING)
+    meta = sly.ProjectMeta.add_tag_meta(meta, date_tag_meta)
     api.project.update_meta(project.id, meta)
+    api.project.images_grouping(id=project.id, enable=True, tag_name="date")
 
     for dataset_path in datasets:
         dataset = api.dataset.create(project.id, os.path.basename(dataset_path))
