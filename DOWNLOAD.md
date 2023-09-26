@@ -1,6 +1,8 @@
-Please visit dataset [homepage](https://doi.org/10.5281/zenodo.5117176) to download the data. 
+Dataset **CosegPP** can be downloaded in [Supervisely format](https://developer.supervisely.com/api-references/supervisely-annotation-json-format):
 
-Afterward, you have the option to download it in the universal supervisely format by utilizing the *dataset-tools* package:
+ [Download](https://assets.supervisely.com/supervisely-supervisely-assets-public/teams_storage/q/h/RW/wWIb2IZqR9cwAkmcf5Y56553JhRcSpumfxaPqAsh9vWfENkHcgYk8zKemIvG3MmRSMDxandL2M42yIm5OKZBpsaPfLlpwmW5azP7MI97ZKy3N6X07TUXWEoOP5ic.tar)
+
+As an alternative, it can be downloaded with *dataset-tools* package:
 ``` bash
 pip install --upgrade dataset-tools
 ```
@@ -9,5 +11,11 @@ pip install --upgrade dataset-tools
 ``` python
 import dataset_tools as dtools
 
-dtools.download(dataset='CosegPP', dst_path='~/dtools/datasets/CosegPP.tar')
+dtools.download(dataset='CosegPP', dst_dir='~/dataset-ninja/')
 ```
+Make sure not to overlook the [python code example](https://developer.supervisely.com/getting-started/python-sdk-tutorials/iterate-over-a-local-project) available on the Supervisely Developer Portal. It will give you a clear idea of how to effortlessly work with the downloaded dataset.
+
+The data in original format can be downloaded here:
+
+- [Images](https://zenodo.org/record/5117176/files/CosegPP.zip?download=1)
+- [Annotations](https://zenodo.org/record/5117176/files/CosegPP_groundtruth.zip?download=1)
