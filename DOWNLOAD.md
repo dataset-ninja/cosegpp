@@ -1,6 +1,6 @@
 Dataset **CosegPP** can be downloaded in [Supervisely format](https://developer.supervisely.com/api-references/supervisely-annotation-json-format):
 
- [Download](https://assets.supervisely.com/supervisely-supervisely-assets-public/teams_storage/p/P/nW/WPW94w89kuJtLNqVP3NikWZeYKJSGkwfkcq6b0vxuHhAuHoCbl05IuvMtQtnstpS4pxQv6tu555Ts2bwKB7dqYbrQuWaAcBRhYL9WpvDL3jjEeDpaMqTU8SJTWOU.tar)
+ [Download](https://assets.supervisely.com/supervisely-supervisely-assets-public/teams_storage/j/I/fS/pEAYryGnMjOEW7DK9NK9hrSue9n2e7I3px02pUVIIRga6owWf1OZgepHi9dmttfaB2s3cGsNNHWukM4ROEjc14kDd0EP8pXqIuHbxjxa3wuoHw4WxxsmqvgEGjsN.tar)
 
 As an alternative, it can be downloaded with *dataset-tools* package:
 ``` bash
