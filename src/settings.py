@@ -14,7 +14,7 @@ from dataset_tools.templates import (
 # * Before uploading to instance #
 ##################################
 PROJECT_NAME: str = "CosegPP"
-PROJECT_NAME_FULL: str = "Cosegmentation for Plant Phenotyping"
+PROJECT_NAME_FULL: str = "CosegPP: Cosegmentation for Plant Phenotyping"
 HIDE_DATASET = False  # set False when 100% sure about repo quality
 
 ##################################
