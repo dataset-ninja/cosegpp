@@ -82,7 +82,7 @@ ORGANIZATION_URL: Optional[Union[str, List[str]]] = "https://www.unl.edu/"
 SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = {
     "__POSTTEXT__": "For the sake of improving the experience when working with this dataset, we have decided to group the images by date. This way, you can work simultaneously with every image of a plant in every modality and angle. This grouping is only visible in advanced labeling toolbox."
 }
-TAGS: Optional[List[str]] = None
+TAGS: Optional[List[str]] = ['multi-view']
 
 
 SECTION_EXPLORE_CUSTOM_DATASETS: Optional[List[str]] = None
